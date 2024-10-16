@@ -26,11 +26,11 @@ CREATE TABLE "Department" (
 );
 
 CREATE TABLE "Employee" (
+  "employee_id" SERIAL PRIMARY KEY,
   "emp_id" varchar(8),
   "emp_nm" varchar(50),
   "email" varchar(100),
-  "hire_dt" date,
-  PRIMARY KEY ("emp_id")
+  "hire_dt" date
 );
 
 CREATE TABLE "Education_lvl" (
@@ -66,10 +66,10 @@ CREATE TABLE "Employment_history" (
   "location_id" int,
   "education_lvl_id" int,
   "department_id" int,
-  "manager_id" varchar(8),
+  "manager_id" int,
   "start_dt" date,
   "end_dt" date,
-  "emp_id" varchar(8)
+  "employee_id" int
 );
 
 ALTER TABLE "Employment_history" add CONSTRAINT "FK_Employment_history.location_id"
@@ -80,9 +80,9 @@ ALTER TABLE "Employment_history"  add  CONSTRAINT "FK_Employment_history.departm
     FOREIGN KEY ("department_id")
       REFERENCES "Department"("department_id");
 
-ALTER TABLE "Employment_history"add CONSTRAINT "FK_Employment_history.emp_id"
-    FOREIGN KEY ("emp_id")
-      REFERENCES "Employee"("emp_id");
+ALTER TABLE "Employment_history"add CONSTRAINT "FK_Employment_history.employee_id"
+    FOREIGN KEY ("employee_id")
+      REFERENCES "Employee"("employee_id");
       
  ALTER TABLE "Employment_history" add  CONSTRAINT "FK_Employment_history.position_id"
     FOREIGN KEY ("position_id")
@@ -94,7 +94,7 @@ ALTER TABLE "Employment_history"add CONSTRAINT "FK_Employment_history.emp_id"
       
  ALTER TABLE "Employment_history" add  CONSTRAINT "FK_Employment_history.manager_id"
     FOREIGN KEY ("manager_id")
-      REFERENCES "Employee"("emp_id");
+      REFERENCES "Employee"("employee_id");
 --- END script to create the initial tables and respective Foreign and Primary keys
 
 -- BEGIN: loading information to the tables
@@ -126,16 +126,17 @@ FROM "proj_stg" AS "ps" LEFT JOIN "City" AS "c" ON "c"."city_nm" = "ps"."city";
 
 INSERT INTO "Employment_history" ("position_id", "salary_id", "location_id", 
                                   "education_lvl_id", "department_id", "manager_id", 
-                                  "start_dt", "end_dt", "emp_id")
+                                  "start_dt", "end_dt", "employee_id")
 SELECT DISTINCT  "p"."position_id","s"."salary_id",  "l"."location_id",
-                "el"."education_lvl_id", "d"."department_id","manager"."emp_id",
-                "ps"."start_dt","ps"."end_dt", "ps"."emp_id"
+                "el"."education_lvl_id", "d"."department_id","manager"."employee_id",
+                "ps"."start_dt","ps"."end_dt", "empl"."employee_id"
 FROM "proj_stg" AS "ps" 
 LEFT JOIN "Position" AS "p" ON "p"."job_title" = "ps"."job_title"
 LEFT JOIN "Salary" AS "s" ON "s"."salary" = "ps"."salary"
 LEFT JOIN "Location" AS "l" ON "l"."address" = "ps"."address" AND "l"."location_nm" = "ps"."location"
 LEFT JOIN "Education_lvl" AS "el" ON "el"."education_lvl" = "ps"."education_lvl"
 LEFT JOIN "Department" AS "d" ON "d"."department_nm" = "ps"."department_nm"
-LEFT JOIN "Employee" AS "manager" ON "manager"."emp_nm" = "ps"."manager";
+LEFT JOIN "Employee" AS "manager" ON "manager"."emp_nm" = "ps"."manager"
+LEFT JOIN "Employee" AS "empl" ON "empl"."emp_id" = "ps"."emp_id";
 
 --END Loading the initial information to the tables.

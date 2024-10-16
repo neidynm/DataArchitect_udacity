@@ -7,9 +7,9 @@ SELECT
     "p"."job_title" AS "Job Title",
     "d"."department_nm" AS "Department Name"
 FROM "Employment_history" AS "eh"
-LEFT JOIN "Employee" AS "e" ON "e"."emp_id" = "eh"."emp_id"
+LEFT JOIN "Employee" AS "e" ON "e"."employee_id" = "eh"."employee_id"
 LEFT JOIN "Position" AS "p" ON "p"."position_id" = "eh"."position_id"
-LEFT JOIN "Department" AS "d" ON "d"."department_id" = "eh"."department_id"
+LEFT JOIN "Department" AS "d" ON "d"."department_id" = "eh"."department_id";
 
 
 --Insert Web Programmer as a new job title
@@ -20,11 +20,14 @@ SELECT * FROM "Position";
 
 -- How many employees are in each department?
 SELECT 
-    COUNT("eh"."emp_id") AS "Nbr Employees", 
-    "d"."department_nm" AS "Department Name"
-FROM "Employment_history" AS "eh"
-LEFT JOIN "Department" AS "d" ON "d"."department_id" = "eh"."department_id"
-GROUP BY "d"."department_nm"
+    COUNT("e"."emp_id") AS "Employee", 
+    "d"."department_nm" AS "Department_Name"
+FROM 
+    "Employment_history" AS "eh"
+    LEFT JOIN "Employee" AS "e" ON "eh"."employee_id" = "e"."employee_id"
+    LEFT JOIN "Department" AS "d" ON "d"."department_id" = "eh"."department_id"
+WHERE  "eh"."end_dt" > CURRENT_DATE --checks if employee is still in the company
+GROUP BY  "d"."department_nm";
 
 --Correct the job title from web programmer to web developer
 UPDATE "Position"
@@ -52,12 +55,12 @@ SELECT
     "eh"."start_dt" AS "Start Date",
     "eh"."end_dt" AS "End Date"
 FROM "Employment_history" AS "eh"
-LEFT JOIN "Employee" AS "e" ON "e"."emp_id" = "eh"."emp_id"
-LEFT JOIN "Employee" AS "m" ON "eh"."manager_id" = "m"."emp_id"
+LEFT JOIN "Employee" AS "e" ON "e"."employee_id" = "eh"."employee_id"
+LEFT JOIN "Employee" AS "m" ON "eh"."manager_id" = "m"."employee_id"
 LEFT JOIN "Position" AS "p" ON "p"."position_id" = "eh"."position_id"
 LEFT JOIN "Department" AS "d" ON "d"."department_id" = "eh"."department_id" 
 WHERE "e"."emp_nm" = 'Toni Lembeck'
-ORDER BY "eh"."start_dt" DESC
+ORDER BY "eh"."start_dt" DESC;
 
 
 ---Create a view that returns all employee attributes; results should resemble initial Excel file
@@ -80,8 +83,8 @@ AS
         "state"."state_nm" AS "state",
         "ed"."education_lvl" AS "education_lvl"
     FROM "Employment_history" AS "eh"
-        LEFT JOIN "Employee" AS "e" ON "e"."emp_id" = "eh"."emp_id"
-        LEFT JOIN "Employee" AS "m" ON "eh"."manager_id" = "m"."emp_id"
+        LEFT JOIN "Employee" AS "e" ON "e"."employee_id" = "eh"."employee_id"
+        LEFT JOIN "Employee" AS "m" ON "eh"."manager_id" = "m"."employee_id"
         LEFT JOIN "Position" AS "p" ON "p"."position_id" = "eh"."position_id"
         LEFT JOIN "Department" AS "d" ON "d"."department_id" = "eh"."department_id" 
         LEFT JOIN "Salary" AS "s" ON "s"."salary_id" = "eh"."salary_id"
@@ -116,8 +119,8 @@ BEGIN
             "eh"."start_dt" AS "StartDate",
             "eh"."end_dt" AS "EndDate"
         FROM "Employment_history" AS "eh"
-            LEFT JOIN "Employee" AS "e" ON "e"."emp_id" = "eh"."emp_id"
-            LEFT JOIN "Employee" AS "m" ON "eh"."manager_id" = "m"."emp_id"
+            LEFT JOIN "Employee" AS "e" ON "e"."employee_id" = "eh"."employee_id"
+            LEFT JOIN "Employee" AS "m" ON "eh"."manager_id" = "m"."employee_id"
             LEFT JOIN "Position" AS "p" ON "p"."position_id" = "eh"."position_id"
             LEFT JOIN "Department" AS "d" ON "d"."department_id" = "eh"."department_id" 
         WHERE "e"."emp_nm" = employee_name
